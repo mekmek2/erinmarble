@@ -73,10 +73,11 @@
   <div class="board" id="board"></div>
   <div class="results" id="results"></div>
 
-  <script type="module">
-    import { simulateOptimizedPath, START_TILE, CORNER_TILES } from './simulate.js';
-
+  <script src="boardSimulator.js"></script>
+  <script>
     const BOARD_SIZE = 32;
+    const START_TILE = 1;
+    const CORNER_TILES = [10, 17, 26, 33];
     let currentTile = START_TILE;
 
     // 보드 생성
@@ -151,10 +152,12 @@
       return layout;
     }
 
-    // 시뮬레이터 함수
+    // 시뮬레이터 실행
     function simulateGame() {
       const points = parseInt(document.getElementById("points").value);
       const resultsDiv = document.getElementById("results");
+
+      // 외부 스크립트의 simulateOptimizedPath 호출
       let result = simulateOptimizedPath(currentTile, points);
 
       // 결과 표시
@@ -166,12 +169,10 @@
         <p>사용된 주사위 수: ${result.dice_used}</p>
       `;
 
-      // 방문한 칸 표시 및 모서리 상태 구분
+      // 방문한 칸 표시
       const tiles = document.querySelectorAll(".tile");
       tiles.forEach(tile => {
         tile.classList.remove("visited", "not-visited-corner");
-        if (tile.textContent == currentTile) tile.classList.add("current");
-
         const tileNumber = parseInt(tile.textContent);
         if (result.visitedTiles.has(tileNumber)) {
           tile.classList.add("visited");
