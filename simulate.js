@@ -80,7 +80,10 @@ function simulateOptimizedPath(currentPosition, currentPoints) {
             }
 
             // 작은 눈의 주사위를 우선적으로 사용
-            if (bestDice === 0) bestDice = dice;
+            //if (bestDice === 0) bestDice = dice;
+
+            // 큰 눈의 주사위를 우선 사용
+            bestDice = dice;
         }
 
         if (bestDice === 0) break; // 포인트 부족 시 종료
