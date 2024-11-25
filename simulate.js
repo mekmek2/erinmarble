@@ -1,7 +1,7 @@
 // 보드 설정
 const BOARD_SIZE = 32; // 10x8 외곽의 32칸
-const START_TILE = 1; // 시작 타일
-const CORNER_TILES = [10, 17, 26, 33]; // 반드시 밟아야 하는 모서리 타일
+export const START_TILE = 1; // 시작 타일
+export const CORNER_TILES = [10, 17, 26, 33]; // 반드시 밟아야 하는 모서리 타일
 
 const DICE_COST = [200, 300, 400, 500, 600, 700];
 
@@ -37,7 +37,7 @@ function optimizeDiceUsage(path, pointUsed, remainingPoints) {
 }
 
 // 경로 시뮬레이션
-function simulateOptimizedPath(currentPosition, currentPoints) {
+export function simulateOptimizedPath(currentPosition, currentPoints) {
   let visitedTiles = new Set();
   let path = [];
   let pointsUsed = 0;
