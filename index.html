@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>보드게임 시뮬레이터</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(10, 50px);
+      grid-template-rows: repeat(8, 50px);
+      margin: 20px auto;
+      gap: 2px;
+    }
+    .tile {
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      cursor: pointer;
+    }
+    .tile.visited {
+      background-color: #ffc107;
+    }
+    .tile.start {
+      background-color: #28a745;
+      color: white;
+    }
+    .tile.corner {
+      background-color: #007bff;
+      color: white;
+    }
+    .tile.not-visited-corner {
+      background-color: #ff4444;
+      color: white;
+    }
+    .tile.current {
+      background-color: #17a2b8;
+      color: white;
+      font-weight: bold;
+    }
+    .tile.empty {
+      background-color: #e9ecef;
+      cursor: default;
+    }
+    .results {
+      margin: 20px auto;
+      max-width: 400px;
+      text-align: left;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>보드게임 시뮬레이터</h1>
+  <div>
+    <label>남은 포인트 입력: </label>
+    <input type="number" id="points" value="3900" min="200" step="100">
+    <button onclick="simulateGame()">계산하기</button>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="results" id="results"></div>
+
+  <script type="module">
+    import { simulateOptimizedPath, START_TILE, CORNER_TILES } from './simulate.js';
+
+    const BOARD_SIZE = 32;
+    let currentTile = START_TILE;
+
+    // 보드 생성
+    function createBoard() {
+      const board = document.getElementById("board");
+      board.innerHTML = "";
+
+      const layout = generateOuterBoardLayout();
+
+      for (let i = 0; i < layout.length; i++) {
+        const tile = document.createElement("div");
+        tile.classList.add("tile");
+
+        if (layout[i] === null) {
+          tile.classList.add("empty");
+        } else {
+          tile.textContent = layout[i];
+          if (layout[i] === START_TILE) tile.classList.add("start");
+          if (CORNER_TILES.includes(layout[i])) tile.classList.add("corner");
+
+          // 클릭 이벤트: currentTile 설정
+          tile.addEventListener("click", () => {
+            if (!tile.classList.contains("empty")) {
+              currentTile = layout[i];
+              updateCurrentTileHighlight();
+            }
+          });
+        }
+
+        board.appendChild(tile);
+      }
+
+      updateCurrentTileHighlight();
+    }
+
+    // 현재 타일 강조 표시
+    function updateCurrentTileHighlight() {
+      const tiles = document.querySelectorAll(".tile");
+      tiles.forEach(tile => {
+        tile.classList.remove("current");
+        if (tile.textContent == currentTile) {
+          tile.classList.add("current");
+        }
+      });
+    }
+
+    // 외곽 타일 배치 생성
+    function generateOuterBoardLayout() {
+      const layout = Array(80).fill(null);
+      let index = 1;
+
+      // 상단 행
+      for (let i = 0; i < 10; i++) {
+        layout[i] = index++;
+      }
+
+      // 오른쪽 열
+      for (let i = 10; i < 70; i += 10) {
+        layout[i + 9] = index++;
+      }
+
+      // 하단 행
+      for (let i = 79; i >= 70; i--) {
+        layout[i] = index++;
+      }
+
+      // 왼쪽 열
+      for (let i = 60; i >= 20; i -= 10) {
+        layout[i] = index++;
+      }
+
+      return layout;
+    }
+
+    // 시뮬레이터 함수
+    function simulateGame() {
+      const points = parseInt(document.getElementById("points").value);
+      const resultsDiv = document.getElementById("results");
+      let result = simulateOptimizedPath(currentTile, points);
+
+      // 결과 표시
+      resultsDiv.innerHTML = `
+        <h3>결과</h3>
+        <p>주사위 사용 순서: ${result.path.join(", ")}</p>
+        <p>사용된 포인트: ${result.points_used}</p>
+        <p>남은 포인트: ${result.remaining_points}</p>
+        <p>사용된 주사위 수: ${result.dice_used}</p>
+      `;
+
+      // 방문한 칸 표시 및 모서리 상태 구분
+      const tiles = document.querySelectorAll(".tile");
+      tiles.forEach(tile => {
+        tile.classList.remove("visited", "not-visited-corner");
+        if (tile.textContent == currentTile) tile.classList.add("current");
+
+        const tileNumber = parseInt(tile.textContent);
+        if (result.visitedTiles.has(tileNumber)) {
+          tile.classList.add("visited");
+        }
+
+        if (CORNER_TILES.includes(tileNumber)) {
+          if (result.visitedTiles.has(tileNumber)) {
+            tile.classList.add("visited");
+          } else {
+            tile.classList.add("not-visited-corner");
+          }
+        }
+      });
+    }
+
+    // 초기화
+    createBoard();
+  </script>
+</body>
+</html>
