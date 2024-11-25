@@ -174,12 +174,12 @@
       tiles.forEach(tile => {
         tile.classList.remove("visited", "not-visited-corner");
         const tileNumber = parseInt(tile.textContent);
-        if (result.visitedTiles.has(tileNumber)) {
+        if (result.tiles_visited.has(tileNumber)) {
           tile.classList.add("visited");
         }
 
         if (CORNER_TILES.includes(tileNumber)) {
-          if (result.visitedTiles.has(tileNumber)) {
+          if (result.tiles_visited.has(tileNumber)) {
             tile.classList.add("visited");
           } else {
             tile.classList.add("not-visited-corner");
